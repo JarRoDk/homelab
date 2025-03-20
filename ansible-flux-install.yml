@@ -1,0 +1,25 @@
+- name: Create and configure LXC container on Proxmox
+  hosts: localhost
+  connection: local
+  become: true
+  gather_facts: false
+  tasks:
+   - name: Download fluxcd
+     get_url:
+       url: "https://github.com/fluxcd/flux2/releases/download/v2.5.1/flux_2.5.1_linux_amd64.tar.gz"
+       dest: "/tmp/fluxcd.tar.gz"
+   
+   - name: Extract fluxcd
+     ansible.builtin.unarchive:
+       src: "/tmp/fluxcd.tar.gz"
+       dest: "/tmp/"
+   
+   - name: Move Kustomize to /usr/local/bin
+     command: mv /tmp/flux /usr/local/bin/flux
+     args:
+       creates: /usr/local/bin/flux
+   
+   - name: Ensure Kustomize is executable
+     file:
+       path: /usr/local/bin/flux
+       mode: '0755'
